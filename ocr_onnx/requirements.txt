@@ -1,0 +1,10 @@
+# Python dependencies for OCR detection ONNX smoke test + conversion
+onnxruntime>=1.16
+numpy>=1.24
+Pillow>=10.0
+opencv-python>=4.8
+
+# Only needed for download_and_convert.sh (Paddle → ONNX conversion):
+# paddlepaddle>=2.5
+# paddle2onnx>=1.0
+# onnx>=1.14

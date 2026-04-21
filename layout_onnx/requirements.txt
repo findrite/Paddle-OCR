@@ -1,0 +1,8 @@
+paddlepaddle==2.6.2
+paddle2onnx==1.2.5
+onnx==1.16.2
+onnxruntime==1.18.1
+numpy<2
+Pillow>=10.0
+PyYAML>=6.0
+requests>=2.31
