@@ -13,6 +13,7 @@ PP-DocTranslation 是飞桨提供的文档智能翻译解决方案，融合了�
 在本产线中，您可以根据下方的基准测试数据选择使用的模型。
 
 > 推理耗时仅包含模型推理耗时，不包含前后处理耗时。
+> 在带有 [常规模式 / 高性能模式] 标记的推理耗时列中，`常规模式` 对应本地飞桨推理引擎。各模块会根据默认模型名称选择合适的本地飞桨推理引擎：仅支持动态图的模型使用 `paddle_dynamic`；同时支持静态图和动态图的模型优先使用 `paddle_static`。
 
 <details><summary> 👉模型列表详情</summary>
 <p><b>文档图像方向分类模块：</b></p>
@@ -641,7 +642,7 @@ devanagari_PP-OCRv3_mobile_rec_infer.tar">推理模型</a>/<a href="https://padd
               <li><strong>软件环境：</strong>
                   <ul>
                       <li>Ubuntu 20.04 / CUDA 11.8 / cuDNN 8.9 / TensorRT 8.6.1.6</li>
-                      <li>paddlepaddle 3.0.0 / paddleocr 3.0.3</li>
+                      <li>paddlepaddle-gpu 3.0.0 / paddleocr 3.0.3</li>
                   </ul>
               </li>
           </ul>
@@ -663,7 +664,7 @@ devanagari_PP-OCRv3_mobile_rec_infer.tar">推理模型</a>/<a href="https://padd
             <td>常规模式</td>
             <td>FP32精度 / 无TRT加速</td>
             <td>FP32精度 / 8线程</td>
-            <td>PaddleInference</td>
+            <td>本地飞桨推理引擎（默认情况下根据默认模型名称选择合适引擎；若静态图和动态图均可用则优先 <code>paddle_static</code>）</td>
         </tr>
         <tr>
             <td>高性能模式</td>
@@ -690,6 +691,16 @@ devanagari_PP-OCRv3_mobile_rec_infer.tar">推理模型</a>/<a href="https://padd
 
 ```bash
 paddleocr pp_doctranslation -i vehicle_certificate-1.png --target_language en --qianfan_api_key your_api_key
+```
+
+上述命令默认使用本地飞桨推理引擎。默认情况下，各模块会根据默认模型名称选择合适的本地飞桨推理引擎：仅支持动态图的模型使用 `paddle_dynamic`；同时支持静态图和动态图的模型优先使用 `paddle_static`。如需运行，请先参考[飞桨框架安装说明](../paddlepaddle_installation.md)安装 PaddlePaddle。
+
+如果选择 `transformers` 作为推理引擎，请先参考[推理引擎文档](../inference_deployment/local_inference/inference_engine.md)完成 Transformers 环境配置，然后执行如下命令：
+
+```bash
+# 使用 transformers 引擎进行推理
+paddleocr pp_doctranslation -i vehicle_certificate-1.png --target_language en --qianfan_api_key your_api_key \
+    --engine transformers
 ```
 
 <details><summary><b>命令行支持更多参数设置，点击展开以查看命令行参数的详细说明</b></summary>
@@ -1284,10 +1295,16 @@ paddleocr pp_doctranslation -i vehicle_certificate-1.png --target_language en --
 <td></td>
 </tr>
 <tr>
+<td><code>engine</code></td>
+<td><b>含义：</b>推理引擎。<br><b>说明：</b>支持 <code>None</code>（默认值）、<code>paddle</code>、<code>paddle_static</code>、<code>paddle_dynamic</code>、<code>transformers</code>。保持为默认值 <code>None</code> 时，PaddleOCR 保留旧版本的行为，在大多数配置下等价于 <code>paddle</code>。详细说明、取值、兼容性规则与示例请参见 <a href="../inference_deployment/local_inference/inference_engine.md">推理引擎与配置说明</a>。</td>
+<td><code>str|None</code></td>
+<td><code>None</code></td>
+</tr>
+<tr>
 <td><code>enable_hpi</code></td>
 <td><b>含义：</b>是否启用高性能推理。</td>
 <td><code>bool</code></td>
-<td><code>False</code></td>
+<td><code>None</code></td>
 </tr>
 <tr>
 <td><code>use_tensorrt</code></td>
@@ -1301,7 +1318,7 @@ paddleocr pp_doctranslation -i vehicle_certificate-1.png --target_language en --
 </tr>
 <tr>
 <td><code>precision</code></td>
-<td><b>含义：</b>计算精度，如 fp32、fp16。</td>
+<td><b>含义：</b>计算精度，如 <code>fp32</code>、<code>fp16</code>。</td>
 <td><code>str</code></td>
 <td><code>fp32</code></td>
 </tr>
@@ -1326,7 +1343,7 @@ paddleocr pp_doctranslation -i vehicle_certificate-1.png --target_language en --
 <td><code>cpu_threads</code></td>
 <td><b>含义：</b>在 CPU 上进行推理时使用的线程数。</td>
 <td><code>int</code></td>
-<td><code>8</code></td>
+<td><code>10</code></td>
 </tr>
 <tr>
 <td><code>paddlex_config</code></td>
@@ -1334,6 +1351,7 @@ paddleocr pp_doctranslation -i vehicle_certificate-1.png --target_language en --
 <td><code>str</code></td>
 <td></td>
 </tr>
+
 </tbody>
 </table>
 </details>
@@ -1350,6 +1368,71 @@ from paddleocr import PPDocTranslation
 
 # 创建翻译产线
 pipeline = PPDocTranslation()
+
+# 文档路径
+input_path = "document_sample.pdf"
+
+# 输出目录
+output_path = "./output"
+
+# 大模型配置
+chat_bot_config = {
+    "module_name": "chat_bot",
+    "model_name": "ernie-3.5-8k",
+    "base_url": "https://qianfan.baidubce.com/v2",
+    "api_type": "openai",
+    "api_key": "api_key",  # your api_key
+}
+
+if input_path.lower().endswith(".md"):
+    # 读取markdown文档，支持传入目录和以 .md 为后缀的 url 链接
+    ori_md_info_list = pipeline.load_from_markdown(input_path)
+else:
+    # 使用 PP-StructureV3 对 PDF/图片 文档进行版面解析，获取markdown信息
+    visual_predict_res = pipeline.visual_predict(
+        input_path,
+        use_doc_orientation_classify=False,
+        use_doc_unwarping=False,
+        use_common_ocr=True,
+        use_seal_recognition=True,
+        use_table_recognition=True,
+    )
+
+    ori_md_info_list = []
+    for res in visual_predict_res:
+        layout_parsing_result = res["layout_parsing_result"]
+        ori_md_info_list.append(layout_parsing_result.markdown)
+        layout_parsing_result.save_to_img(output_path)
+        layout_parsing_result.save_to_markdown(output_path)
+
+    # 将多页文档的 markdown 信息拼接成一个 markdown 文件，可将合并后的 markdown 原文保存
+    if input_path.lower().endswith(".pdf"):
+        ori_md_info = pipeline.concatenate_markdown_pages(ori_md_info_list)
+        ori_md_info.save_to_markdown(output_path)
+
+# 执行文档翻译（目标语言：英文）
+tgt_md_info_list = pipeline.translate(
+    ori_md_info_list=ori_md_info_list,
+    target_language="en",
+    chunk_size=5000,
+    chat_bot_config=chat_bot_config,
+)
+# 保存翻译结果
+for tgt_md_info in tgt_md_info_list:
+    tgt_md_info.save_to_markdown(output_path)
+```
+
+上述代码默认使用本地飞桨推理引擎。默认情况下，各模块会根据默认模型名称选择合适的本地飞桨推理引擎：仅支持动态图的模型使用 `paddle_dynamic`；同时支持静态图和动态图的模型优先使用 `paddle_static`。如需运行，请先参考[飞桨框架安装说明](../paddlepaddle_installation.md)安装 PaddlePaddle。
+
+如果选择 `transformers` 作为推理引擎，请先参考[推理引擎文档](../inference_deployment/local_inference/inference_engine.md)完成 Transformers 环境配置，然后执行如下代码：
+
+```python
+from paddleocr import PPDocTranslation
+
+# 创建翻译产线
+pipeline = PPDocTranslation(
+    engine="transformers",
+)
 
 # 文档路径
 input_path = "document_sample.pdf"
@@ -2019,10 +2102,23 @@ PP-DocTranslation 预测的流程、API 说明、产出说明如下：
 <td><code>None</code></td>
 </tr>
 <tr>
+<td><code>engine</code></td>
+<td><b>含义：</b>推理引擎。<br><b>说明：</b>支持 <code>None</code>（默认值）、<code>paddle</code>、<code>paddle_static</code>、<code>paddle_dynamic</code>、<code>transformers</code>。保持为默认值 <code>None</code> 时，PaddleOCR 保留旧版本的行为，在大多数配置下等价于 <code>paddle</code>。详细说明、取值、兼容性规则与示例请参见 <a href="../inference_deployment/local_inference/inference_engine.md">推理引擎与配置说明</a>。</td>
+<td><code>str|None</code></td>
+<td><code>None</code></td>
+</tr>
+<tr>
+<td><code>engine_config</code></td>
+<td><b>含义：</b>推理引擎配置。<br><b>说明：</b>推荐与 <code>engine</code> 搭配使用。详细字段、兼容性规则与示例请参见 <a href="../inference_deployment/local_inference/inference_engine.md">推理引擎与配置说明</a>。</td>
+<td><code>dict|None</code></td>
+<td><code>None</code></td>
+</tr>
+
+<tr>
 <td><code>enable_hpi</code></td>
 <td><b>含义：</b>是否启用高性能推理。</td>
 <td><code>bool</code></td>
-<td><code>False</code></td>
+<td><code>None</code></td>
 </tr>
 <tr>
 <td><code>use_tensorrt</code></td>
@@ -2036,7 +2132,7 @@ PP-DocTranslation 预测的流程、API 说明、产出说明如下：
 </tr>
 <tr>
 <td><code>precision</code></td>
-<td><b>含义：</b>计算精度，如 fp32、fp16。</td>
+<td><b>含义：</b>计算精度，如 <code>"fp32"</code>、<code>"fp16"</code>。</td>
 <td><code>str</code></td>
 <td><code>"fp32"</code></td>
 </tr>
@@ -2061,7 +2157,7 @@ PP-DocTranslation 预测的流程、API 说明、产出说明如下：
 <td><code>cpu_threads</code></td>
 <td><b>含义：</b>在 CPU 上进行推理时使用的线程数。</td>
 <td><code>int</code></td>
-<td><code>8</code></td>
+<td><code>10</code></td>
 </tr>
 <tr>
 <td><code>paddlex_config</code></td>
@@ -2069,6 +2165,7 @@ PP-DocTranslation 预测的流程、API 说明、产出说明如下：
 <td><code>str|None</code></td>
 <td><code>None</code></td>
 </tr>
+
 </tbody>
 </table>
 
@@ -2623,9 +2720,9 @@ PP-DocTranslation 预测的流程、API 说明、产出说明如下：
 
 此外，PaddleOCR 也提供了其他两种部署方式，详细说明如下：
 
-🚀 高性能推理：在实际生产环境中，许多应用对部署策略的性能指标（尤其是响应速度）有着较严苛的标准，以确保系统的高效运行与用户体验的流畅性。为此，PaddleOCR 提供高性能推理功能，旨在对模型推理及前后处理进行深度性能优化，实现端到端流程的显著提速，详细的高性能推理流程请参考[高性能推理](../deployment/high_performance_inference.md)。
+🚀 高性能推理：在实际生产环境中，许多应用对部署策略的性能指标（尤其是响应速度）有着较严苛的标准，以确保系统的高效运行与用户体验的流畅性。为此，PaddleOCR 提供高性能推理功能，旨在对模型推理及前后处理进行深度性能优化，实现端到端流程的显著提速，详细的高性能推理流程请参考[高性能推理](../inference_deployment/local_inference/high_performance_inference.md)。
 
-☁️ 服务化部署：服务化部署是实际生产环境中常见的一种部署形式。通过将推理功能封装为服务，客户端可以通过网络请求来访问这些服务，以获取推理结果。详细的产线服务化部署流程请参考[服务化部署](../deployment/serving.md)。
+☁️ 服务化部署：服务化部署是实际生产环境中常见的一种部署形式。通过将推理功能封装为服务，客户端可以通过网络请求来访问这些服务，以获取推理结果。详细的产线服务化部署流程请参考[服务化部署](../inference_deployment/serving/serving.md)。
 
 以下是基础服务化部署的API参考与多语言服务调用示例：
 
@@ -2719,7 +2816,7 @@ PP-DocTranslation 预测的流程、API 说明、产出说明如下：
 <tr>
 <td><code>file</code></td>
 <td><code>string</code></td>
-<td>服务器可访问的图像文件或PDF文件的URL，或上述类型文件内容的Base64编码结果。默认对于超过10页的PDF文件，只有前10页的内容会被处理。<br /> 要解除页数限制，请在产线配置文件中添加以下配置：
+<td>服务器可访问的图像文件（含 TIFF，多页时按页处理）或 PDF 文件的 URL，或上述类型文件内容的 Base64 编码结果。默认对于超过 10 页的 PDF 或多页 TIFF，仅处理前 10 页。<br /> 要解除页数限制，请在产线配置文件中添加以下配置：
 <pre><code>Serving:
   extra:
     max_num_input_imgs: null
@@ -2730,7 +2827,7 @@ PP-DocTranslation 预测的流程、API 说明、产出说明如下：
 <tr>
 <td><code>fileType</code></td>
 <td><code>integer</code>｜<code>null</code></td>
-<td>文件类型。<code>0</code>表示PDF文件，<code>1</code>表示图像文件。若请求体无此属性，则将根据URL推断文件类型。</td>
+<td>文件类型。<code>0</code> 表示 PDF 文件，<code>1</code> 表示图像文件（含 TIFF）。若请求体无此属性，则将根据URL推断文件类型。</td>
 <td>否</td>
 </tr>
 <tr>
@@ -2783,7 +2880,7 @@ PP-DocTranslation 预测的流程、API 说明、产出说明如下：
 </tr>
 <tr>
 <td><code>layoutThreshold</code></td>
-<td><code>number</code> | <code>object</code> | </code><code>null</code></td>
+<td><code>number</code> | <code>object</code> | <code>null</code></td>
 <td>请参阅产线对象中 <code>visual_predict</code> 方法的 <code>layout_threshold</code> 参数相关说明。</td>
 <td>否</td>
 </tr>
@@ -2881,19 +2978,19 @@ PP-DocTranslation 预测的流程、API 说明、产出说明如下：
 <td><code>useWiredTableCellsTransToHtml</code></td>
 <td><code>boolean</code></td>
 <td>请参阅产线对象中 <code>visual_predict</code> 方法的 <code>use_wired_table_cells_trans_to_html</code> 参数相关说明。</td>
-<td>No</td>
+<td>否</td>
 </tr>
 <tr>
 <td><code>useWirelessTableCellsTransToHtml</code></td>
 <td><code>boolean</code></td>
 <td>请参阅产线对象中 <code>visual_predict</code> 方法的 <code>use_wireless_table_cells_trans_to_html</code> 参数相关说明。</td>
-<td>No</td>
+<td>否</td>
 </tr>
 <tr>
 <td><code>useTableOrientationClassify</code></td>
 <td><code>boolean</code></td>
 <td>请参阅产线对象中 <code>visual_predict</code> 方法的 <code>use_table_orientation_classify</code> 参数相关说明。</td>
-<td>No</td>
+<td>否</td>
 </tr>
 <tr>
 <td><code>useOcrResultsWithTableCells</code></td>
@@ -2911,6 +3008,12 @@ PP-DocTranslation 预测的流程、API 说明、产出说明如下：
 <td><code>useE2eWirelessTableRecModel</code></td>
 <td><code>boolean</code></td>
 <td>请参阅产线对象中 <code>visual_predict</code> 方法的 <code>use_e2e_wireless_table_rec_model</code> 参数相关说明。</td>
+<td>否</td>
+</tr>
+<tr>
+<td><code>outputFormats</code></td>
+<td><code>array</code> | <code>null</code></td>
+<td>可选。附加导出格式列表；当前仅支持 <code>"docx"</code>。</td>
 <td>否</td>
 </tr>
 <tr>
@@ -2956,6 +3059,7 @@ PP-DocTranslation 预测的流程、API 说明、产出说明如下：
 </tr>
 </tbody>
 </table>
+<p>下表中涉及图像等二进制文件的字段（如 <code>outputImages</code>、<code>inputImage</code>、<code>markdown.images</code>、<code>exports</code>）默认以 Base64 字符串内联返回；当服务端开启 URL 返回模式时，相应字段的值变为预签名 URL，字段类型保持不变。配置方式参见 <a href="../inference_deployment/serving/serving.md">服务化部署</a>「以 URL 形式返回二进制内容」一节。</p>
 <p><code>layoutParsingResults</code>中的每个元素为一个<code>object</code>，具有如下属性：</p>
 <table>
 
@@ -2980,12 +3084,17 @@ PP-DocTranslation 预测的流程、API 说明、产出说明如下：
 <tr>
 <td><code>outputImages</code></td>
 <td><code>object</code> | <code>null</code></td>
-<td>参见产线预测结果的 <code>img</code> 属性说明。图像为JPEG格式，使用Base64编码。</td>
+<td>参见产线预测结果的 <code>img</code> 属性说明。图像为JPEG格式，使用Base64编码；启用 URL 返回模式时为预签名 URL。</td>
 </tr>
 <tr>
 <td><code>inputImage</code></td>
 <td><code>string</code> | <code>null</code></td>
-<td>输入图像。图像为JPEG格式，使用Base64编码。</td>
+<td>输入图像。图像为JPEG格式，使用Base64编码；启用 URL 返回模式时为预签名 URL。</td>
+</tr>
+<tr>
+<td><code>exports</code></td>
+<td><code>object</code> | <code>null</code></td>
+<td>可选的 <code>docx</code> 等附加导出，仅当请求 <code>outputFormats</code> 时出现。其中 <code>content</code> 为文件内容的Base64编码；启用 URL 返回模式时为预签名 URL。</td>
 </tr>
 </tbody>
 </table>
@@ -3007,7 +3116,7 @@ PP-DocTranslation 预测的流程、API 说明、产出说明如下：
 <tr>
 <td><code>images</code></td>
 <td><code>object</code></td>
-<td>Markdown图片相对路径和Base64编码图像的键值对。</td>
+<td>Markdown图片相对路径和Base64编码图像的键值对；启用 URL 返回模式时为预签名 URL。</td>
 </tr>
 <tr>
 <td><code>isStart</code></td>

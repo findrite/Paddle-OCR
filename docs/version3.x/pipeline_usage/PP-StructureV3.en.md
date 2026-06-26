@@ -21,6 +21,7 @@ Layout analysis is a technique used to extract structured information from docum
 In this pipeline, you can choose the model to use based on the benchmark data below.
 
 > The inference time only includes the model inference time and does not include the time for pre- or post-processing.
+> In the inference time columns labeled [Standard Mode / High-Performance Mode], [Normal Mode / High-Performance Mode], or [Regular Mode / High-Performance Mode], the Standard Mode, Normal Mode, and Regular Mode values correspond to local Paddle inference engines. Each module selects the appropriate local Paddle inference engine according to the default model name: models that support only dynamic graph use `paddle_dynamic`, while models that support both static and dynamic graph prefer `paddle_static`.
 
 <details>
 <summary><b>Document Image Orientation Classification Module :</b></summary>
@@ -922,7 +923,7 @@ devanagari_PP-OCRv3_mobile_rec_infer.tar">Inference Model</a>/<a href="https://p
               <li><strong>Software Environment:</strong>
                   <ul>
                       <li>Ubuntu 20.04 / CUDA 11.8 / cuDNN 8.9 / TensorRT 8.6.1.6</li>
-                      <li>paddlepaddle 3.0.0 / paddleocr 3.0.3</li>
+                      <li>paddlepaddle-gpu 3.0.0 / paddleocr 3.0.3</li>
                   </ul>
               </li>
           </ul>
@@ -944,7 +945,7 @@ devanagari_PP-OCRv3_mobile_rec_infer.tar">Inference Model</a>/<a href="https://p
             <td>Normal Mode</td>
             <td>FP32 Precision / No TRT Acceleration</td>
             <td>FP32 Precision / 8 Threads</td>
-            <td>PaddleInference</td>
+            <td>Local Paddle inference engines (by default, the engine is selected according to the default model name; if both static and dynamic graph are available, <code>paddle_static</code> is preferred)</td>
         </tr>
         <tr>
             <td>High-Performance Mode</td>
@@ -981,6 +982,25 @@ paddleocr pp_structurev3 -i ./pp_structure_v3_demo.png --use_textline_orientatio
 
 # Use --device to specify GPU for inference
 paddleocr pp_structurev3 -i ./pp_structure_v3_demo.png --device gpu
+```
+
+The examples above use local Paddle inference engines by default. By default, each module selects the appropriate local Paddle inference engine according to the default model name: models that support only dynamic graph use `paddle_dynamic`, while models that support both static and dynamic graph prefer `paddle_static`. To run them, first install PaddlePaddle by following [PaddlePaddle Framework Installation](../paddlepaddle_installation.en.md).
+
+If you choose `transformers` as the inference engine, make sure the Transformers environment is configured by following [Inference Engine and Configuration](../inference_deployment/local_inference/inference_engine.en.md), and then run the following command:
+
+```bash
+# Use the transformers engine for inference
+paddleocr pp_structurev3 -i https://paddle-model-ecology.bj.bcebos.com/paddlex/imgs/demo_image/pp_structure_v3_demo.png \
+    --engine transformers
+```
+
+If you choose `onnxruntime` as the inference engine, make sure the ONNX Runtime environment is configured by following [Inference Engine and Configuration](../inference_deployment/local_inference/inference_engine.en.md), and then run the following command:
+
+```bash
+# Use the onnxruntime engine for inference
+# Some models are still being supported. For inference, please disable formula recognition using the following command:
+paddleocr pp_structurev3 -i https://paddle-model-ecology.bj.bcebos.com/paddlex/imgs/demo_image/pp_structure_v3_demo.png \
+    --engine onnxruntime --use_formula_recognition False
 ```
 
 <details><summary><b>Command line supports more parameters. Click to expand for detailed parameter descriptions</b></summary>
@@ -1567,53 +1587,59 @@ You can specify a device ID:
 <td></td>
 </tr>
 <tr>
+<td><code>engine</code></td>
+<td><b>Meaning:</b> Inference engine.<br/><b>Description:</b> Supports <code>None</code> (the default), <code>paddle</code>, <code>paddle_static</code>, <code>paddle_dynamic</code>, and <code>transformers</code>. When left as <code>None</code>, PaddleOCR preserves the behavior of earlier versions, which in most configurations is equivalent to <code>paddle</code>. For detailed descriptions, supported values, compatibility rules, and examples, see <a href="../inference_deployment/local_inference/inference_engine.en.md">Inference Engine and Configuration</a>.</td>
+<td><code>str|None</code></td>
+<td><code>None</code></td>
+</tr>
+<tr>
 <td><code>enable_hpi</code></td>
-<td><b>Meaning:</b>Whether to enable high performance inference.</td>
+<td><b>Meaning:</b> Whether to enable high-performance inference.</td>
 <td><code>bool</code></td>
-<td><code>False</code></td>
+<td><code>None</code></td>
 </tr>
 <tr>
 <td><code>use_tensorrt</code></td>
-<td><b>Meaning:</b>Whether to use the Paddle Inference TensorRT subgraph engine. <br/>
-<b>Description:</b> 
-If the model does not support acceleration through TensorRT, setting this flag will not enable acceleration.<br/>
-For Paddle with CUDA version 11.8, the compatible TensorRT version is 8.x (x>=6), and it is recommended to install TensorRT 8.6.1.6.<br/>
-
+<td><b>Meaning:</b> Whether to enable the TensorRT subgraph engine of Paddle Inference.<br/>
+<b>Description:</b>
+If the model does not support TensorRT acceleration, acceleration will not be used even if this flag is set.<br/>
+For CUDA 11.8 versions of PaddlePaddle, the compatible TensorRT version is 8.x (x>=6). TensorRT 8.6.1.6 is recommended.<br/>
 </td>
 <td><code>bool</code></td>
 <td><code>False</code></td>
 </tr>
 <tr>
 <td><code>precision</code></td>
-<td><b>Meaning:</b>Computation precision, e.g., fp32, fp16.</td>
+<td><b>Meaning:</b> Computation precision, such as <code>fp32</code> or <code>fp16</code>.</td>
 <td><code>str</code></td>
 <td><code>fp32</code></td>
 </tr>
 <tr>
 <td><code>enable_mkldnn</code></td>
-<td><b>Meaning:</b>Whether to enable MKL-DNN acceleration for inference. <br/>
-<b>Description:</b> 
-If MKL-DNN is unavailable or the model does not support it, acceleration will not be used even if this flag is set.
+<td><b>Meaning:</b> Whether to enable MKL-DNN accelerated inference.<br/>
+<b>Description:</b>
+If MKL-DNN is unavailable or the model does not support MKL-DNN acceleration, acceleration will not be used even if this flag is set.
+</td>
 <td><code>bool</code></td>
 <td><code>True</code></td>
 </tr>
 <tr>
 <td><code>mkldnn_cache_capacity</code></td>
 <td>
-<b>Meaning:</b>MKL-DNN cache capacity.
+<b>Meaning:</b> MKL-DNN cache capacity.
 </td>
 <td><code>int</code></td>
 <td><code>10</code></td>
 </tr>
 <tr>
 <td><code>cpu_threads</code></td>
-<td><b>Meaning:</b>Number of threads to use when inferring on CPU.</td>
+<td><b>Meaning:</b> Number of threads used for inference on CPU.</td>
 <td><code>int</code></td>
-<td><code>8</code></td>
+<td><code>10</code></td>
 </tr>
 <tr>
 <td><code>paddlex_config</code></td>
-<td><b>Meaning:</b>Path to the PaddleX pipeline configuration file.</td>
+<td><b>Meaning:</b> Path to the PaddleX pipeline configuration file.</td>
 <td><code>str</code></td>
 <td></td>
 </tr>
@@ -1671,6 +1697,50 @@ for res in output:
     res.save_to_json(save_path="output") ## Save the current image's structured result in JSON format
     res.save_to_markdown(save_path="output") ## Save the current image's result in Markdown format
     res.save_to_word(save_path="output") ## Save the current image's result in Word format
+```
+
+The example above uses local Paddle inference engines by default. By default, each module selects the appropriate local Paddle inference engine according to the default model name: models that support only dynamic graph use `paddle_dynamic`, while models that support both static and dynamic graph prefer `paddle_static`. To run it, first install PaddlePaddle by following [PaddlePaddle Framework Installation](../paddlepaddle_installation.en.md).
+
+If you choose `transformers` as the inference engine, make sure the Transformers environment is configured by following [Inference Engine and Configuration](../inference_deployment/local_inference/inference_engine.en.md), and then run the following code:
+
+```python
+from paddleocr import PPStructureV3
+
+pipeline = PPStructureV3(
+    engine="transformers",
+)
+# pipeline = PPStructureV3(lang="en") # Set the lang parameter to use the English text recognition model. For other supported languages, see Section 5: Appendix. By default, both Chinese and English text recognition models are enabled.
+# pipeline = PPStructureV3(use_doc_orientation_classify=True) # Use use_doc_orientation_classify to enable/disable document orientation classification model
+# pipeline = PPStructureV3(use_doc_unwarping=True) # Use use_doc_unwarping to enable/disable document unwarping module
+# pipeline = PPStructureV3(use_textline_orientation=True) # Use use_textline_orientation to enable/disable textline orientation classification model
+# pipeline = PPStructureV3(device="gpu") # Use device to specify GPU for model inference
+output = pipeline.predict("./pp_structure_v3_demo.png")
+for res in output:
+    res.print() ## Print the structured prediction output
+    res.save_to_json(save_path="output") ## Save the current image's structured result in JSON format
+    res.save_to_markdown(save_path="output") ## Save the current image's result in Markdown format
+```
+
+If you choose `onnxruntime` as the inference engine, make sure the ONNX Runtime environment is configured by following [Inference Engine and Configuration](../inference_deployment/local_inference/inference_engine.en.md), and then run the following code:
+
+```python
+from paddleocr import PPStructureV3
+
+# Some models are still being supported. For inference, please disable formula recognition using the following code:
+pipeline = PPStructureV3(
+    engine="onnxruntime",
+    use_formula_recognition=False,
+)
+# pipeline = PPStructureV3(lang="en") # Set the lang parameter to use the English text recognition model. For other supported languages, see Section 5: Appendix. By default, both Chinese and English text recognition models are enabled.
+# pipeline = PPStructureV3(use_doc_orientation_classify=True) # Use use_doc_orientation_classify to enable/disable document orientation classification model
+# pipeline = PPStructureV3(use_doc_unwarping=True) # Use use_doc_unwarping to enable/disable document unwarping module
+# pipeline = PPStructureV3(use_textline_orientation=True) # Use use_textline_orientation to enable/disable textline orientation classification model
+# pipeline = PPStructureV3(device="gpu") # Use device to specify GPU for model inference
+output = pipeline.predict("./pp_structure_v3_demo.png")
+for res in output:
+    res.print() ## Print the structured prediction output
+    res.save_to_json(save_path="output") ## Save the current image's structured result in JSON format
+    res.save_to_markdown(save_path="output") ## Save the current image's result in Markdown format
 ```
 
 For PDF files, each page will be processed individually and generate a separate Markdown file. If you want to convert the entire PDF to a single Markdown file, use the following method:
@@ -2335,56 +2405,70 @@ Supports specifying device ID:
 <td><code>None</code></td>
 </tr>
 <tr>
+<td><code>engine</code></td>
+<td><b>Meaning:</b> Inference engine.<br/><b>Description:</b> Supports <code>None</code> (the default), <code>paddle</code>, <code>paddle_static</code>, <code>paddle_dynamic</code>, and <code>transformers</code>. When left as <code>None</code>, PaddleOCR preserves the behavior of earlier versions, which in most configurations is equivalent to <code>paddle</code>. For detailed descriptions, supported values, compatibility rules, and examples, see <a href="../inference_deployment/local_inference/inference_engine.en.md">Inference Engine and Configuration</a>.</td>
+<td><code>str|None</code></td>
+<td><code>None</code></td>
+</tr>
+<tr>
+<td><code>engine_config</code></td>
+<td><b>Meaning:</b> Inference-engine configuration.<br/><b>Description:</b> Recommended together with <code>engine</code>. For supported fields, compatibility rules, and examples, see <a href="../inference_deployment/local_inference/inference_engine.en.md">Inference Engine and Configuration</a>.</td>
+<td><code>dict|None</code></td>
+<td><code>None</code></td>
+</tr>
+
+<tr>
 <td><code>enable_hpi</code></td>
-<td><b>Meaning:</b>Whether to enable high-performance inference.</td>
+<td><b>Meaning:</b> Whether to enable high-performance inference.</td>
 <td><code>bool</code></td>
-<td><code>False</code></td>
+<td><code>None</code></td>
 </tr>
 <tr>
 <td><code>use_tensorrt</code></td>
-<td><b>Meaning:</b>Whether to use the Paddle Inference TensorRT subgraph engine. <br/>
-<b>Description:</b> 
-If the model does not support acceleration through TensorRT, setting this flag will not enable acceleration.<br/>
-For Paddle with CUDA version 11.8, the compatible TensorRT version is 8.x (x>=6), and it is recommended to install TensorRT 8.6.1.6.<br/>
-
+<td><b>Meaning:</b> Whether to enable the TensorRT subgraph engine of Paddle Inference.<br/>
+<b>Description:</b>
+If the model does not support TensorRT acceleration, acceleration will not be used even if this flag is set.<br/>
+For CUDA 11.8 versions of PaddlePaddle, the compatible TensorRT version is 8.x (x>=6). TensorRT 8.6.1.6 is recommended.<br/>
 </td>
 <td><code>bool</code></td>
 <td><code>False</code></td>
 </tr>
 <tr>
 <td><code>precision</code></td>
-<td><b>Meaning:</b>Computation precision, e.g., fp32, fp16.</td>
+<td><b>Meaning:</b> Computation precision, such as <code>"fp32"</code> or <code>"fp16"</code>.</td>
 <td><code>str</code></td>
 <td><code>"fp32"</code></td>
 </tr>
 <tr>
 <td><code>enable_mkldnn</code></td>
-<td><b>Meaning:</b>Whether to enable MKL-DNN acceleration for inference. <br/>
-<b>Description:</b> 
-If MKL-DNN is unavailable or the model does not support it, acceleration will not be used even if this flag is set.</td>
+<td><b>Meaning:</b> Whether to enable MKL-DNN accelerated inference.<br/>
+<b>Description:</b>
+If MKL-DNN is unavailable or the model does not support MKL-DNN acceleration, acceleration will not be used even if this flag is set.
+</td>
 <td><code>bool</code></td>
 <td><code>True</code></td>
 </tr>
 <tr>
 <td><code>mkldnn_cache_capacity</code></td>
 <td>
-<b>Meaning:</b>MKL-DNN cache capacity.
+<b>Meaning:</b> MKL-DNN cache capacity.
 </td>
 <td><code>int</code></td>
 <td><code>10</code></td>
 </tr>
 <tr>
 <td><code>cpu_threads</code></td>
-<td><b>Meaning:</b>Number of threads used for inference on CPU.</td>
+<td><b>Meaning:</b> Number of threads used for inference on CPU.</td>
 <td><code>int</code></td>
-<td><code>8</code></td>
+<td><code>10</code></td>
 </tr>
 <tr>
 <td><code>paddlex_config</code></td>
-<td><b>Meaning:</b>Path to the PaddleX pipeline configuration file.</td>
+<td><b>Meaning:</b> Path to the PaddleX pipeline configuration file.</td>
 <td><code>str|None</code></td>
 <td><code>None</code></td>
 </tr>
+
 </tbody>
 </table>
 
@@ -2917,9 +3001,9 @@ If you want to directly use the pipeline in your Python project, refer to the ex
 
 In addition, PaddleOCR provides two other deployment options described in detail below:
 
-🚀 High-Performance Inference: In production environments, many applications have strict performance requirements (especially response speed) to ensure system efficiency and smooth user experience. PaddleOCR offers a high-performance inference option that deeply optimizes model inference and pre/post-processing for significant end-to-end acceleration. For detailed high-performance inference workflow, refer to [High Performance Inference](../deployment/high_performance_inference.en.md).
+🚀 High-Performance Inference: In production environments, many applications have strict performance requirements (especially response speed) to ensure system efficiency and smooth user experience. PaddleOCR offers a high-performance inference option that deeply optimizes model inference and pre/post-processing for significant end-to-end acceleration. For detailed high-performance inference workflow, refer to [High Performance Inference](../inference_deployment/local_inference/high_performance_inference.en.md).
 
-☁️ Service Deployment: Service-based deployment is common in production. It encapsulates the inference logic as a service, allowing clients to access it via network requests to obtain results. For detailed instructions on service deployment, refer to [Service Deployment](../deployment/serving.en.md).
+☁️ Service Deployment: Service-based deployment is common in production. It encapsulates the inference logic as a service, allowing clients to access it via network requests to obtain results. For detailed instructions on service deployment, refer to [Service Deployment](../inference_deployment/serving/serving.en.md).
 
 Below is the API reference and multi-language service invocation examples for basic service deployment:
 
@@ -3012,7 +3096,7 @@ Below is the API reference and multi-language service invocation examples for ba
 <tr>
 <td><code>file</code></td>
 <td><code>string</code></td>
-<td>The URL of an image or PDF file accessible by the server, or the Base64-encoded content of the above file types. By default, for PDF files exceeding 10 pages, only the content of the first 10 pages will be processed.<br />
+<td>The URL of image files (including TIFF; multi-page TIFF is processed page by page) or PDF file accessible by the server, or the Base64-encoded content of the above file types. By default, for PDF or multi-page TIFF files exceeding 10 pages, only the first 10 pages will be processed.<br />
 To remove the page limit, please add the following configuration to the pipeline configuration file:
 <pre><code>Serving:
   extra:
@@ -3082,7 +3166,7 @@ To remove the page limit, please add the following configuration to the pipeline
 </tr>
 <tr>
 <td><code>layoutThreshold</code></td>
-<td><code>number</code> | <code>object</code> | </code><code>null</code></td>
+<td><code>number</code> | <code>object</code> | <code>null</code></td>
 <td>Please refer to the description of the <code>layout_threshold</code> parameter of the pipeline object's <code>predict</code> method.</td>
 <td>No</td>
 </tr>
@@ -3231,6 +3315,18 @@ To remove the page limit, please add the following configuration to the pipeline
 <td>No</td>
 </tr>
 <tr>
+<td><code>returnMarkdownImages</code></td>
+<td><code>boolean</code></td>
+<td>Whether to return the images referenced in the Markdown. Default <code>true</code>; when set to <code>false</code>, <code>markdown.images</code> is <code>null</code> or omitted and the server skips image encoding / URL upload.</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>outputFormats</code></td>
+<td><code>array</code> | <code>null</code></td>
+<td>Optional list of extra formats to return. Currently only <code>"docx"</code> is supported.</td>
+<td>No</td>
+</tr>
+<tr>
 <td><code>visualize</code></td>
 <td><code>boolean</code> | <code>null</code></td>
 <td>
@@ -3276,6 +3372,7 @@ If neither the request body nor the configuration file is set (If <code>visualiz
 </tr>
 </tbody>
 </table>
+<p>Image and other binary file fields in the element schema below (e.g. <code>outputImages</code>, <code>inputImage</code>, <code>markdown.images</code>, <code>exports</code>) are returned inline as Base64 strings by default; when the server is configured to return URLs, those values become pre-signed URLs while the field types remain unchanged. See the "Returning Binary Content as URLs" section of the <a href="../inference_deployment/serving/serving.en.md">Serving Deployment Guide</a> for configuration.</p>
 <p>Each element in <code>layoutParsingResults</code> is an <code>object</code> with the following attributes:</p>
 <table>
 <thead>
@@ -3299,12 +3396,17 @@ If neither the request body nor the configuration file is set (If <code>visualiz
 <tr>
 <td><code>outputImages</code></td>
 <td><code>object</code> | <code>null</code></td>
-<td>See the description of the <code>img</code> attribute of the result of the pipeline prediction. The images are in JPEG format and are Base64-encoded.</td>
+<td>See the description of the <code>img</code> attribute of the result of the pipeline prediction. The images are in JPEG format, Base64-encoded by default; returned as pre-signed URLs when URL-return mode is enabled.</td>
 </tr>
 <tr>
 <td><code>inputImage</code></td>
 <td><code>string</code> | <code>null</code></td>
-<td>The input image. The image is in JPEG format and is Base64-encoded.</td>
+<td>The input image. The image is in JPEG format, Base64-encoded by default; returned as a pre-signed URL when URL-return mode is enabled.</td>
+</tr>
+<tr>
+<td><code>exports</code></td>
+<td><code>object</code> | <code>null</code></td>
+<td>Optional additional exports when <code>outputFormats</code> is present—for example, <code>{"docx": {"content": "..."}}</code>, where <code>content</code> is the Base64-encoded file content by default, or a pre-signed URL when URL-return mode is enabled.</td>
 </tr>
 </tbody>
 </table>
@@ -3325,8 +3427,8 @@ If neither the request body nor the configuration file is set (If <code>visualiz
 </tr>
 <tr>
 <td><code>images</code></td>
-<td><code>object</code></td>
-<td>A key-value pair of relative paths of Markdown images and Base64-encoded images.</td>
+<td><code>object</code> | <code>null</code></td>
+<td>A key-value pair of relative Markdown image paths and their image data. Values are Base64-encoded by default; returned as pre-signed URLs when URL-return mode is enabled. The field is <code>null</code> or omitted when <code>returnMarkdownImages</code> is <code>false</code> in the request.</td>
 </tr>
 <tr>
 <td><code>isStart</code></td>

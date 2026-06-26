@@ -8,7 +8,7 @@ comments: true
 
 OCR is a technology that converts text from images into editable text. It is widely used in fields such as document digitization, information extraction, and data processing. OCR can recognize printed text, handwritten text, and even certain types of fonts and symbols.
 
-The general OCR pipeline is used to solve text recognition tasks by extracting text information from images and outputting it in text form. This pipeline supports the use of PP-OCRv3, PP-OCRv4, and PP-OCRv5 models, with the default model being the PP-OCRv5_server model released by PaddleOCR 3.0, which improves by 13 percentage points over PP-OCRv4_server in various scenarios.
+The general OCR pipeline is used to solve text recognition tasks by extracting text information from images and outputting it in text form. This pipeline supports PP-OCRv3, PP-OCRv4, PP-OCRv5, and PP-OCRv6 models, with the default model being **PP-OCRv6_medium** released with PaddleOCR 3.7. PP-OCRv6, built on the newly designed PPLCNetV4 unified backbone, offers tiny/small/medium tiers. The medium tier achieves +5.1% (recognition) and +4.6% (detection) over PP-OCRv5_server with faster inference; a single model supports 50 languages including Chinese, English, Japanese, and 46 Latin-script languages.
 
 <img src="https://raw.githubusercontent.com/cuicheng01/PaddleX_doc_images/main/images/pipelines/ocr/01.png"/>
 
@@ -23,6 +23,7 @@ The general OCR pipeline is used to solve text recognition tasks by extracting t
 In this pipeline, you can select models based on the benchmark test data provided below.
 
 > The inference time only includes the model inference time and does not include the time for pre- or post-processing.
+> In the inference time columns labeled [Standard Mode / High-Performance Mode], the Standard Mode values correspond to the local `paddle_static` inference engine.
 
 <details>
 <summary><b>Document Image Orientation Classification Module (Optional):</b></summary>
@@ -129,6 +130,33 @@ In this pipeline, you can select models based on the benchmark test data provide
 </thead>
 <tbody>
 <tr>
+<td>PP-OCRv6_medium_det</td>
+<td><a href="https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/PP-OCRv6_medium_det_infer.tar">Inference Model</a>/<a href="https://paddle-model-ecology.bj.bcebos.com/paddlex/official_pretrained_model/PP-OCRv6_medium_det_pretrained.pdparams">Training Model</a></td>
+<td>86.2*</td>
+<td>- / -</td>
+<td>- / -</td>
+<td>59.4</td>
+<td>PP-OCRv6 medium-scale text detection model based on PPLCNetV4 + RepLKFPN, highest accuracy, suitable for server deployment</td>
+</tr>
+<tr>
+<td>PP-OCRv6_small_det</td>
+<td><a href="https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/PP-OCRv6_small_det_infer.tar">Inference Model</a>/<a href="https://paddle-model-ecology.bj.bcebos.com/paddlex/official_pretrained_model/PP-OCRv6_small_det_pretrained.pdparams">Training Model</a></td>
+<td>84.1*</td>
+<td>- / -</td>
+<td>- / -</td>
+<td>9.6</td>
+<td>PP-OCRv6 small text detection model, balancing accuracy and efficiency, suitable for mobile deployment</td>
+</tr>
+<tr>
+<td>PP-OCRv6_tiny_det</td>
+<td><a href="https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/PP-OCRv6_tiny_det_infer.tar">Inference Model</a>/<a href="https://paddle-model-ecology.bj.bcebos.com/paddlex/official_pretrained_model/PP-OCRv6_tiny_det_pretrained.pdparams">Training Model</a></td>
+<td>80.6*</td>
+<td>- / -</td>
+<td>- / -</td>
+<td>1.9</td>
+<td>PP-OCRv6 ultra-lightweight text detection model (0.43M params), suitable for edge/IoT scenarios</td>
+</tr>
+<tr>
 <td>PP-OCRv5_server_det</td>
 <td><a href="https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/PP-OCRv5_server_det_infer.tar">Inference Model</a>/<a href="https://paddle-model-ecology.bj.bcebos.com/paddlex/official_pretrained_model/PP-OCRv5_server_det_pretrained.pdparams">Training Model</a></td>
 <td>83.8</td>
@@ -166,6 +194,9 @@ In this pipeline, you can select models based on the benchmark test data provide
 </tr>
 </tbody>
 </table>
+
+> *Note: PP-OCRv6 metrics are evaluated on an internal multi-scenario evaluation set, while PP-OCRv5/v4 metrics are based on a general evaluation set. As the evaluation sets differ, the metrics are not directly comparable.
+
 </details>
 
 <details>
@@ -178,6 +209,31 @@ In this pipeline, you can select models based on the benchmark test data provide
 <th>CPU Inference Time (ms)<br/>[Normal Mode / High-Performance Mode]</th>
 <th>Model Storage Size (MB)</th>
 <th>Introduction</th>
+</tr>
+<tr>
+<td>PP-OCRv6_medium_rec</td>
+<td><a href="https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/PP-OCRv6_medium_rec_infer.tar">Inference Model</a>/<a href="https://paddle-model-ecology.bj.bcebos.com/paddlex/official_pretrained_model/PP-OCRv6_medium_rec_pretrained.pdparams">Training Model</a></td>
+<td>83.2*</td>
+<td>- / -</td>
+<td>- / -</td>
+<td>73.3</td>
+<td rowspan="3">PP-OCRv6 text recognition models based on PPLCNetV4 + LightSVTR + CTC/NRTR multi-head decoder, single model supports 50 languages (tiny: 49)</td>
+</tr>
+<tr>
+<td>PP-OCRv6_small_rec</td>
+<td><a href="https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/PP-OCRv6_small_rec_infer.tar">Inference Model</a>/<a href="https://paddle-model-ecology.bj.bcebos.com/paddlex/official_pretrained_model/PP-OCRv6_small_rec_pretrained.pdparams">Training Model</a></td>
+<td>81.3*</td>
+<td>- / -</td>
+<td>- / -</td>
+<td>20.4</td>
+</tr>
+<tr>
+<td>PP-OCRv6_tiny_rec</td>
+<td><a href="https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/PP-OCRv6_tiny_rec_infer.tar">Inference Model</a>/<a href="https://paddle-model-ecology.bj.bcebos.com/paddlex/official_pretrained_model/PP-OCRv6_tiny_rec_pretrained.pdparams">Training Model</a></td>
+<td>73.5*</td>
+<td>- / -</td>
+<td>- / -</td>
+<td>4.4</td>
 </tr>
 <tr>
 <td>PP-OCRv5_server_rec</td>
@@ -237,6 +293,8 @@ en_PP-OCRv4_mobile_rec_infer.tar">Inference Model</a>/<a href="https://paddle-mo
 <td>An ultra-lightweight English recognition model trained based on the PP-OCRv4 recognition model, supporting English and numeric character recognition.</td>
 </tr>
 </table>
+
+> *Note: PP-OCRv6 metrics are evaluated on an internal multi-scenario evaluation set, while PP-OCRv5/v4 metrics are based on a general evaluation set. As the evaluation sets differ, the metrics are not directly comparable.
 
 > ❗ The above section lists the <b>6 core models</b> that are primarily supported by the text recognition module. In total, the module supports <b>20 comprehensive models</b>, including multiple multilingual text recognition models. Below is the complete list of models:
 
@@ -656,7 +714,7 @@ devanagari_PP-OCRv3_mobile_rec_infer.tar">Inference Model</a>/<a href="https://p
               <li><strong>Software Environment:</strong>
                   <ul>
                       <li>Ubuntu 20.04 / CUDA 11.8 / cuDNN 8.9 / TensorRT 8.6.1.6</li>
-                      <li>paddlepaddle 3.0.0 / paddleocr 3.0.3</li>
+                      <li>paddlepaddle-gpu 3.0.0 / paddleocr 3.0.3</li>
                   </ul>
               </li>
           </ul>
@@ -678,7 +736,7 @@ devanagari_PP-OCRv3_mobile_rec_infer.tar">Inference Model</a>/<a href="https://p
            <td>Standard Mode</td>
            <td>FP32 Precision / No TRT Acceleration</td>
            <td>FP32 Precision / 8 Threads</td>
-           <td>PaddleInference</td>
+           <td><code>paddle_static</code></td>
        </tr>
        <tr>
            <td>High-Performance Mode</td>
@@ -696,26 +754,93 @@ devanagari_PP-OCRv3_mobile_rec_infer.tar">Inference Model</a>/<a href="https://p
 
 ## 2. Quick Start  
 
-Before using the general OCR pipeline locally, ensure you have installed the wheel package by following the [Installation Guide](../installation.en.md). Once installed, you can experience OCR via the command line or Python integration.  
+Before using the general OCR pipeline locally, install the dependencies for your chosen inference engine first, then install the `paddleocr` package. See the [Installation Guide](../installation.en.md) for the full procedure. After installation, you can use the command line or Python integration.
 
+### 2.0 Environment Preparation
+
+#### 2.0.1 Install the inference engine
+
+- If you use the local `paddle_static` inference engine, install PaddlePaddle by following [PaddlePaddle Framework Installation](../paddlepaddle_installation.en.md).
+- If you use the `transformers` inference engine, install the required dependencies by following [Inference Engine and Configuration](../inference_deployment/local_inference/inference_engine.en.md).
+- If you use the `onnxruntime` inference engine, install the required dependencies by following [Inference Engine and Configuration](../inference_deployment/local_inference/inference_engine.en.md).
+
+#### 2.0.2 Install paddleocr
+
+```bash
+# Install the basic package (OCR only)
+pip install paddleocr
+
+# Install the full package (all features)
+pip install "paddleocr[all]"
+```
+
+#### 2.0.3 Environment Verification
+
+```python
+# Verify that PaddleOCR is installed successfully
+import paddleocr
+print(f"PaddleOCR version: {paddleocr.__version__}")
+
+# If you use the local paddle_static inference engine, you can further verify PaddlePaddle and GPU availability
+import paddle
+print(f"Paddle version: {paddle.__version__}")
+print(f"GPU available: {paddle.is_compiled_with_cuda()}")
+print(f"GPU count: {paddle.device.cuda.device_count()}")
+
+# If you use the transformers inference engine, you can further verify the transformers dependency
+import transformers
+print(f"Transformers version: {transformers.__version__}")
+```
+
+#### 2.0.4 Common Installation Issues
 Please note: If you encounter issues such as the program becoming unresponsive, unexpected program termination, running out of memory resources, or extremely slow inference during execution, please try adjusting the configuration according to the documentation, such as disabling unnecessary features or using lighter-weight models.
 
 ### 2.1 Command Line  
 
 Run a single command to quickly test the OCR pipeline.  Before running the code below, please download the [example image](https://paddle-model-ecology.bj.bcebos.com/paddlex/demo_image/pipelines/general_formula_recognition_001.png) locally:  
 
-```bash  
-# Default: Uses PP-OCRv5 model  
+```bash
 paddleocr ocr -i https://paddle-model-ecology.bj.bcebos.com/paddlex/imgs/demo_image/general_ocr_002.png \
     --use_doc_orientation_classify False \
     --use_doc_unwarping False \
     --use_textline_orientation False \
     --save_path ./output \
-    --device gpu:0 
+    --device gpu:0
 
 # Use PP-OCRv4 model by --ocr_version PP-OCRv4
 paddleocr ocr -i ./general_ocr_002.png --ocr_version PP-OCRv4
-```  
+
+```
+
+The examples above use the local `paddle_static` inference engine by default. To run them, first install PaddlePaddle by following [PaddlePaddle Framework Installation](../paddlepaddle_installation.en.md).
+
+If you choose `transformers` as the inference engine, make sure the Transformers environment is configured by following [Inference Engine and Configuration](../inference_deployment/local_inference/inference_engine.en.md), and then run the following command:
+
+```bash
+# Use the transformers engine for inference
+paddleocr ocr -i https://paddle-model-ecology.bj.bcebos.com/paddlex/imgs/demo_image/general_ocr_002.png \
+    --use_doc_orientation_classify False \
+    --use_doc_unwarping False \
+    --use_textline_orientation False \
+    --save_path ./output \
+    --device gpu:0 \
+    --engine transformers
+```
+
+If you choose `onnxruntime` as the inference engine, make sure the ONNX Runtime environment is configured by following [Inference Engine and Configuration](../inference_deployment/local_inference/inference_engine.en.md), and then run the following command:
+
+```bash
+# Use the onnxruntime engine for inference
+paddleocr ocr -i https://paddle-model-ecology.bj.bcebos.com/paddlex/imgs/demo_image/general_ocr_002.png \
+    --use_doc_orientation_classify False \
+    --use_doc_unwarping False \
+    --use_textline_orientation False \
+    --save_path ./output \
+    --device gpu:0 \
+    --engine onnxruntime
+```
+
+In most scenarios, the default `paddle_static` inference engine delivers better inference performance and is the recommended first choice.
 
 <details><summary><b>Command line supports more parameter settings. Click to expand for detailed instructions on command line parameters.</b></summary>
 <table>
@@ -955,6 +1080,7 @@ The table in the appendix lists all the supported languages.
 <td><b>Meaning:</b>Version of OCR models.<br/>
 <b>Description:</b>
 <ul>
+<li><b>PP-OCRv6</b>: Use PP-OCRv6 series models;
 <li><b>PP-OCRv5</b>: Use PP-OCRv5 series models;
 <li><b>PP-OCRv4</b>: Use PP-OCRv4 series models;
 <li><b>PP-OCRv3</b>: Use PP-OCRv3 series models.</li>
@@ -984,33 +1110,38 @@ Supports specifying a specific card number:
 <td></td>
 </tr>
 <tr>
+<td><code>engine</code></td>
+<td><b>Meaning:</b> Inference engine.<br/><b>Description:</b> Supports <code>None</code> (the default), <code>paddle</code>, <code>paddle_static</code>, <code>paddle_dynamic</code>, and <code>transformers</code>. When left as <code>None</code>, PaddleOCR preserves the behavior of earlier versions, which in most configurations is equivalent to <code>paddle</code>. For detailed descriptions, supported values, compatibility rules, and examples, see <a href="../inference_deployment/local_inference/inference_engine.en.md">Inference Engine and Configuration</a>.</td>
+<td><code>str|None</code></td>
+<td><code>None</code></td>
+</tr>
+<tr>
 <td><code>enable_hpi</code></td>
-<td><b>Meaning:</b>Whether to enable high-performance inference.</td>
+<td><b>Meaning:</b> Whether to enable high-performance inference.</td>
 <td><code>bool</code></td>
-<td><code>False</code></td>
+<td><code>None</code></td>
 </tr>
 <tr>
 <td><code>use_tensorrt</code></td>
-<td><b>Meaning:</b>Whether to use the Paddle Inference TensorRT subgraph engine. <br/>
+<td><b>Meaning:</b> Whether to enable the TensorRT subgraph engine of Paddle Inference.<br/>
 <b>Description:</b>
-If the model does not support acceleration through TensorRT, setting this flag will not enable acceleration.<br/>
-For Paddle with CUDA version 11.8, the compatible TensorRT version is 8.x (x>=6), and it is recommended to install TensorRT 8.6.1.6.<br/>
-
+If the model does not support TensorRT acceleration, acceleration will not be used even if this flag is set.<br/>
+For CUDA 11.8 versions of PaddlePaddle, the compatible TensorRT version is 8.x (x>=6). TensorRT 8.6.1.6 is recommended.<br/>
 </td>
 <td><code>bool</code></td>
 <td><code>False</code></td>
 </tr>
 <tr>
 <td><code>precision</code></td>
-<td><b>Meaning:</b>Computational precision, such as fp32, fp16.</td>
+<td><b>Meaning:</b> Computation precision, such as <code>fp32</code> or <code>fp16</code>.</td>
 <td><code>str</code></td>
 <td><code>fp32</code></td>
 </tr>
 <tr>
 <td><code>enable_mkldnn</code></td>
-<td><b>Meaning:</b>Whether to enable MKL-DNN acceleration for inference. <br/>
+<td><b>Meaning:</b> Whether to enable MKL-DNN accelerated inference.<br/>
 <b>Description:</b>
-If MKL-DNN is unavailable or the model does not support it, acceleration will not be used even if this flag is set.
+If MKL-DNN is unavailable or the model does not support MKL-DNN acceleration, acceleration will not be used even if this flag is set.
 </td>
 <td><code>bool</code></td>
 <td><code>True</code></td>
@@ -1018,20 +1149,20 @@ If MKL-DNN is unavailable or the model does not support it, acceleration will no
 <tr>
 <td><code>mkldnn_cache_capacity</code></td>
 <td>
-<b>Meaning:</b>MKL-DNN cache capacity.
+<b>Meaning:</b> MKL-DNN cache capacity.
 </td>
 <td><code>int</code></td>
 <td><code>10</code></td>
 </tr>
 <tr>
 <td><code>cpu_threads</code></td>
-<td><b>Meaning:</b>Number of threads used for inference on CPU.</td>
+<td><b>Meaning:</b> Number of threads used for inference on CPU.</td>
 <td><code>int</code></td>
-<td><code>8</code></td>
+<td><code>10</code></td>
 </tr>
 <tr>
 <td><code>paddlex_config</code></td>
-<td><b>Meaning:</b>Path to the PaddleX pipeline configuration file.</td>
+<td><b>Meaning:</b> Path to the PaddleX pipeline configuration file.</td>
 <td><code>str</code></td>
 <td></td>
 </tr>
@@ -1156,16 +1287,18 @@ If `save_path` is specified, the visualization results will be saved under `save
 
 The command-line method is for quick testing. For project integration, you can achieve OCR inference with just a few lines of code:  
 
-```python  
-from paddleocr import PaddleOCR  
+```python
+from paddleocr import PaddleOCR
 
+# Uses PP-OCRv6 models by default
 ocr = PaddleOCR(
     use_doc_orientation_classify=False, # Disables document orientation classification model via this parameter
     use_doc_unwarping=False, # Disables text image rectification model via this parameter
     use_textline_orientation=False, # Disables text line orientation classification model via this parameter
 )
 # ocr = PaddleOCR(lang="en") # Uses English model by specifying language parameter
-# ocr = PaddleOCR(ocr_version="PP-OCRv4") # Uses other PP-OCR versions via version parameter
+# ocr = PaddleOCR(ocr_version="PP-OCRv5") # Switches to PP-OCRv5 version via ocr_version parameter
+# ocr = PaddleOCR(ocr_version="PP-OCRv4") # Switches to PP-OCRv4 version via ocr_version parameter
 # ocr = PaddleOCR(device="gpu") # Enables GPU acceleration for model inference via device parameter
 # ocr = PaddleOCR(
 #     text_detection_model_name="PP-OCRv5_mobile_det",
@@ -1173,7 +1306,7 @@ ocr = PaddleOCR(
 #     use_doc_orientation_classify=False,
 #     use_doc_unwarping=False,
 #     use_textline_orientation=False,
-# ) # Switch to PP-OCRv5_mobile models
+# ) # Switch to PP-OCRv5 mobile models
 result = ocr.predict("./general_ocr_002.png")  
 for res in result:  
     res.print()  
@@ -1292,6 +1425,30 @@ If set to <code>None</code>, the default batch size will be <code>1</code>.</td>
 <td><code>None</code></td>
 </tr>
 <tr>
+<td><code>text_recognition_model_name</code></td>
+<td><b>Meaning:</b>Name of the text recognition model. <br/>
+<b>Description:</b>
+If set to <code>None</code>, the pipeline's default model will be used.</td>
+<td><code>str|None</code></td>
+<td><code>None</code></td>
+</tr>
+<tr>
+<td><code>text_recognition_model_dir</code></td>
+<td><b>Meaning:</b>Directory path of the text recognition model. <br/>
+<b>Description:</b>
+If set to <code>None</code>, the official model will be downloaded.</td>
+<td><code>str|None</code></td>
+<td><code>None</code></td>
+</tr>
+<tr>
+<td><code>text_recognition_batch_size</code></td>
+<td><b>Meaning:</b>Batch size for the text recognition model. <br/>
+<b>Description:</b>
+If set to <code>None</code>, the default batch size will be <code>1</code>.</td>
+<td><code>int|None</code></td>
+<td><code>None</code></td>
+</tr>
+<tr>
 <td><code>use_doc_orientation_classify</code></td>
 <td><b>Meaning:</b>Whether to load and use the document orientation classification module. <br/>
 <b>Description:</b>
@@ -1309,7 +1466,7 @@ If set to <code>None</code>, the pipeline's initialized value for this parameter
 </tr>
 <tr>
 <td><code>use_textline_orientation</code></td>
-<td><b></b>Meaning:</b>Whether to load and use the text line orientation module. <br/>
+<td><b>Meaning:</b>Whether to load and use the text line orientation module. <br/>
 <b>Description:</b>
 If set to <code>None</code>, the pipeline's initialized value for this parameter (defaults to <code>True</code>) will be used.</td>
 <td><code>bool|None</code></td>
@@ -1409,6 +1566,7 @@ The table in the appendix lists all the supported languages.
 <td><b>Meaning:</b>Version of OCR models. <br/>
 <b>Description:</b>
 <ul>
+<li><b>PP-OCRv6</b>: Use PP-OCRv6 series models;</li>
 <li><b>PP-OCRv5</b>: Use PP-OCRv5 series models;</li>
 <li><b>PP-OCRv4</b>: Use PP-OCRv4 series models;</li>
 <li><b>PP-OCRv3</b>: Use PP-OCRv3 series models.</li>
@@ -1439,10 +1597,22 @@ Supports specifying a specific card number:
 <td><code>None</code></td>
 </tr>
 <tr>
+<td><code>engine</code></td>
+<td><b>Meaning:</b> Inference engine.<br/><b>Description:</b> Supports <code>None</code> (the default), <code>paddle</code>, <code>paddle_static</code>, <code>paddle_dynamic</code>, and <code>transformers</code>. When left as <code>None</code>, PaddleOCR preserves the behavior of earlier versions, which in most configurations is equivalent to <code>paddle</code>. For detailed descriptions, supported values, compatibility rules, and examples, see <a href="../inference_deployment/local_inference/inference_engine.en.md">Inference Engine and Configuration</a>.</td>
+<td><code>str|None</code></td>
+<td><code>None</code></td>
+</tr>
+<tr>
+<td><code>engine_config</code></td>
+<td><b>Meaning:</b> Inference-engine configuration.<br/><b>Description:</b> Recommended together with <code>engine</code>. For supported fields, compatibility rules, and examples, see <a href="../inference_deployment/local_inference/inference_engine.en.md">Inference Engine and Configuration</a>.</td>
+<td><code>dict|None</code></td>
+<td><code>None</code></td>
+</tr>
+<tr>
 <td><code>enable_hpi</code></td>
 <td><b>Meaning:</b>Whether to enable high-performance inference.</td>
 <td><code>bool</code></td>
-<td><code>False</code></td>
+<td><code>None</code></td>
 </tr>
 <tr>
 <td><code>use_tensorrt</code></td>
@@ -1456,7 +1626,7 @@ For Paddle with CUDA version 11.8, the compatible TensorRT version is 8.x (x>=6)
 </tr>
 <tr>
 <td><code>precision</code></td>
-<td><b>Meaning:</b>Computational precision, such as fp32, fp16.</td>
+<td><b>Meaning:</b>Computational precision, such as <code>"fp32"</code>, <code>"fp16"</code>.</td>
 <td><code>str</code></td>
 <td><code>"fp32"</code></td>
 </tr>
@@ -1480,7 +1650,7 @@ If MKL-DNN is unavailable or the model does not support it, acceleration will no
 <td><code>cpu_threads</code></td>
 <td><b>Meaning:</b>Number of threads used for CPU inference.</td>
 <td><code>int</code></td>
-<td><code>8</code></td>
+<td><code>10</code></td>
 </tr>
 <tr>
 <td><code>paddlex_config</code></td>
@@ -1721,9 +1891,9 @@ If you need to apply the general OCR pipeline directly in your Python project, y
 
 Additionally, PaddleOCR provides two other deployment methods, detailed as follows:
 
-🚀 **High-Performance Inference**: In real-world production environments, many applications have stringent performance requirements (especially for response speed) to ensure system efficiency and smooth user experience. To address this, PaddleOCR offers high-performance inference capabilities, which deeply optimize model inference and pre/post-processing to achieve significant end-to-end speed improvements. For detailed high-performance inference workflows, refer to the [High-Performance Inference Guide](../deployment/high_performance_inference.en.md).
+🚀 **High-Performance Inference**: In real-world production environments, many applications have stringent performance requirements (especially for response speed) to ensure system efficiency and smooth user experience. To address this, PaddleOCR offers high-performance inference capabilities, which deeply optimize model inference and pre/post-processing to achieve significant end-to-end speed improvements. For detailed high-performance inference workflows, refer to the [High-Performance Inference Guide](../inference_deployment/local_inference/high_performance_inference.en.md).
 
-☁️ **Service Deployment**: Service deployment is a common form of deployment in production environments. By encapsulating inference functionality as a service, clients can access these services via network requests to obtain inference results. For detailed pipeline service deployment workflows, refer to the [Service Deployment Guide](../deployment/serving.en.md).
+☁️ **Service Deployment**: Service deployment is a common form of deployment in production environments. By encapsulating inference functionality as a service, clients can access these services via network requests to obtain inference results. For detailed pipeline service deployment workflows, refer to the [Service Deployment Guide](../inference_deployment/serving/serving.en.md).
 
 Below are the API reference for basic service deployment and examples of multi-language service calls:
 
@@ -1816,7 +1986,7 @@ Below are the API reference for basic service deployment and examples of multi-l
 <tr>
 <td><code>file</code></td>
 <td><code>string</code></td>
-<td>A server-accessible URL to an image or PDF file, or the Base64-encoded content of such a file. By default, for PDF files with more than 10 pages, only the first 10 pages are processed.<br /> To remove the page limit, add the following configuration to the pipeline config file:
+<td>A server-accessible URL to image files (including TIFF; multi-page TIFF is processed page by page) or PDF file, or the Base64-encoded content of such a file. By default, for PDF or multi-page TIFF files with more than 10 pages, only the first 10 pages are processed.<br /> To remove the page limit, add the following configuration to the pipeline config file:
 <pre><code>Serving:
   extra:
     max_num_input_imgs: null
@@ -1827,7 +1997,7 @@ Below are the API reference for basic service deployment and examples of multi-l
 <tr>
 <td><code>fileType</code></td>
 <td><code>integer</code> | <code>null</code></td>
-<td>File type. <code>0</code> for PDF, <code>1</code> for image. If omitted, the type is inferred from the URL.</td>
+<td>File type. <code>0</code> for PDF, <code>1</code> for image (including TIFF). If omitted, the type is inferred from the URL.</td>
 <td>No</td>
 </tr>
 <tr>
@@ -1931,6 +2101,7 @@ If neither the request body nor the configuration file is set (If <code>visualiz
 </tr>
 </tbody>
 </table>
+<p>Image fields in the element schema below (e.g. <code>ocrImage</code>, <code>docPreprocessingImage</code>, <code>inputImage</code>) are returned inline as Base64 strings by default; when the server is configured to return URLs, those values become pre-signed URLs while the field types remain unchanged. See the "Returning Binary Content as URLs" section of the <a href="../inference_deployment/serving/serving.en.md">Serving Deployment Guide</a> for configuration.</p>
 <p>Each element in <code>ocrResults</code> is an <code>object</code> with the following attributes:</p>
 <table>
 <thead>
@@ -1949,17 +2120,17 @@ If neither the request body nor the configuration file is set (If <code>visualiz
 <tr>
 <td><code>ocrImage</code></td>
 <td><code>string</code> | <code>null</code></td>
-<td>OCR result image with detected text regions highlighted. JPEG format, Base64-encoded.</td>
+<td>OCR result image with detected text regions highlighted. JPEG format, Base64-encoded by default; returned as a pre-signed URL when URL-return mode is enabled.</td>
 </tr>
 <tr>
 <td><code>docPreprocessingImage</code></td>
 <td><code>string</code> | <code>null</code></td>
-<td>Visualization of preprocessing results. JPEG format, Base64-encoded.</td>
+<td>Visualization of preprocessing results. JPEG format, Base64-encoded by default; returned as a pre-signed URL when URL-return mode is enabled.</td>
 </tr>
 <tr>
 <td><code>inputImage</code></td>
 <td><code>string</code> | <code>null</code></td>
-<td>Input image. JPEG format, Base64-encoded.</td>
+<td>Input image. JPEG format, Base64-encoded by default; returned as a pre-signed URL when URL-return mode is enabled.</td>
 </tr>
 </tbody>
 </table>
@@ -2431,7 +2602,7 @@ Command line mode:
 # Specify the local model path via --text_detection_model_dir
 paddleocr ocr -i ./general_ocr_002.png --text_detection_model_dir your_det_model_path
 
-# PP-OCRv5_server_det model is used as the default text detection model. If you do not fine-tune this model, modify the model name by using --text_detection_model_name
+# Modify the model name via --text_detection_model_name
 paddleocr ocr -i ./general_ocr_002.png --text_detection_model_name PP-OCRv5_mobile_det --text_detection_model_dir your_v5_mobile_det_model_path
 ```
 
@@ -2444,10 +2615,76 @@ from paddleocr import PaddleOCR
 #  Specify the local model path via text_detection_model_dir
 pipeline = PaddleOCR(text_detection_model_dir="./your_det_model_path")
 
-# PP-OCRv5_server_det model is used as the default text detection model. If you do not fine-tune this model, modify the model name by using text_detection_model_name
+# Modify the model name via text_detection_model_name
 # pipeline = PaddleOCR(text_detection_model_name="PP-OCRv5_mobile_det", text_detection_model_dir="./your_v5_mobile_det_model_path")
 
 ```
+
+The example above uses the local `paddle_static` inference engine by default. To run it, first install PaddlePaddle by following [PaddlePaddle Framework Installation](../paddlepaddle_installation.en.md).
+
+If you choose `transformers` as the inference engine, make sure the Transformers environment is configured by following [Inference Engine and Configuration](../inference_deployment/local_inference/inference_engine.en.md), and then run the following code:
+
+```python
+from paddleocr import PaddleOCR
+
+# Uses PP-OCRv6 models by default
+ocr = PaddleOCR(
+    use_doc_orientation_classify=False, # Disable document orientation classification
+    use_doc_unwarping=False, # Disable document unwarping
+    use_textline_orientation=False, # Disable textline orientation classification
+    engine="transformers",
+)
+# ocr = PaddleOCR(lang="en", engine="transformers") # Use the English model
+# ocr = PaddleOCR(ocr_version="PP-OCRv5", engine="transformers") # Switch to PP-OCRv5 version
+# ocr = PaddleOCR(ocr_version="PP-OCRv4", engine="transformers") # Switch to PP-OCRv4 version
+# ocr = PaddleOCR(device="gpu", engine="transformers") # Use GPU for inference
+# ocr = PaddleOCR(
+#     text_detection_model_name="PP-OCRv5_server_det",
+#     text_recognition_model_name="PP-OCRv5_server_rec",
+#     use_doc_orientation_classify=False,
+#     use_doc_unwarping=False,
+#     use_textline_orientation=False,
+#     engine="transformers",
+# ) # Switch to PP-OCRv5 server models
+result = ocr.predict("./general_ocr_002.png")
+for res in result:
+    res.print()
+    res.save_to_img("output")
+    res.save_to_json("output")
+```
+
+If you choose `onnxruntime` as the inference engine, make sure the ONNX Runtime environment is configured by following [Inference Engine and Configuration](../inference_deployment/local_inference/inference_engine.en.md), and then run the following code:
+
+```python
+from paddleocr import PaddleOCR
+
+# Uses PP-OCRv6 models by default
+ocr = PaddleOCR(
+    use_doc_orientation_classify=False, # Disable document orientation classification
+    use_doc_unwarping=False, # Disable document unwarping
+    use_textline_orientation=False, # Disable textline orientation classification
+    engine="onnxruntime",
+)
+# ocr = PaddleOCR(lang="en", engine="onnxruntime") # Use the English model
+# ocr = PaddleOCR(ocr_version="PP-OCRv5", engine="onnxruntime") # Switch to PP-OCRv5 version
+# ocr = PaddleOCR(ocr_version="PP-OCRv4", engine="onnxruntime") # Switch to PP-OCRv4 version
+# ocr = PaddleOCR(device="gpu", engine="onnxruntime") # Use GPU for inference
+# ocr = PaddleOCR(
+#     text_detection_model_name="PP-OCRv5_server_det",
+#     text_recognition_model_name="PP-OCRv5_server_rec",
+#     use_doc_orientation_classify=False,
+#     use_doc_unwarping=False,
+#     use_textline_orientation=False,
+#     engine="onnxruntime",
+# ) # Switch to PP-OCRv5 server models
+result = ocr.predict("./general_ocr_002.png")
+for res in result:
+    res.print()
+    res.save_to_img("output")
+    res.save_to_json("output")
+```
+
+In most scenarios, the default `paddle_static` inference engine delivers better inference performance and is the recommended first choice.
 
 #### 4.2.2 Specify the local model path through the configuration file
 
@@ -2475,7 +2712,7 @@ SubModules:
     limit_type: min
     max_side_limit: 4000  
     model_dir: null # Replace with the path to your fine-tuned text detection model weights  
-    model_name: PP-OCRv5_server_det  # If the name of the fine-tuned model is different from the default model name, please modify it here as well
+    model_name: PP-OCRv6_medium_det  # If the name of the fine-tuned model is different from the default model name, please modify it here as well
     module_name: text_detection  
     thresh: 0.3  
     unclip_ratio: 1.5  
@@ -2487,7 +2724,7 @@ SubModules:
   TextRecognition:  
     batch_size: 6  
     model_dir: null # Replace with the path to your fine-tuned text recognition model weights  
-    model_name: PP-OCRv5_server_rec  # If the name of the fine-tuned model is different from the default model name, please modify it here as well
+    model_name: PP-OCRv6_medium_rec  # If the name of the fine-tuned model is different from the default model name, please modify it here as well
     module_name: text_recognition  
     score_thresh: 0.0  
 ......  
@@ -2620,6 +2857,10 @@ pipeline = PaddleOCR(paddlex_config="PaddleOCR.yaml")
    </tr>
   </thead>
   <tbody>
+    <tr>
+      <td><code>PP-OCRv6</code></td>
+      <td><code>ch</code>, <code>chinese_cht</code>, <code>en</code>, <code>japan</code>, <code>af</code>, <code>az</code>, <code>bs</code>, <code>ca</code>, <code>cs</code>, <code>cy</code>, <code>da</code>, <code>de</code>, <code>es</code>, <code>et</code>, <code>eu</code>, <code>fi</code>, <code>fr</code>, <code>ga</code>, <code>gl</code>, <code>hr</code>, <code>hu</code>, <code>id</code>, <code>is</code>, <code>it</code>, <code>ku</code>, <code>la</code>, <code>lb</code>, <code>lt</code>, <code>lv</code>, <code>mi</code>, <code>ms</code>, <code>mt</code>, <code>nl</code>, <code>no</code>, <code>oc</code>, <code>pl</code>, <code>pt</code>, <code>qu</code>, <code>rm</code>, <code>ro</code>, <code>rs_latin</code>, <code>sk</code>, <code>sl</code>, <code>sq</code>, <code>sv</code>, <code>sw</code>, <code>tl</code>, <code>tr</code>, <code>uz</code>, <code>vi</code>, <code>french</code>, <code>german</code>. <code>PP-OCRv6_tiny</code> does not support <code>japan</code>; set <code>PP-OCRv6_tiny_det</code>/<code>PP-OCRv6_tiny_rec</code> explicitly.</td>
+    </tr>
     <tr>
       <td><code>PP-OCRv5</code></td>
       <td><code>ch</code>, <code>en</code>, <code>fr</code>, <code>de</code>, <code>japan</code>, <code>korean</code>, <code>chinese_cht</code>, <code>af</code>, <code>it</code>, <code>es</code>, <code>bs</code>, <code>pt</code>, <code>cs</code>, <code>cy</code>, <code>da</code>, <code>et</code>, <code>ga</code>, <code>hr</code>, <code>hu</code>, <code>rslatin</code>, <code>id</code>, <code>oc</code>, <code>is</code>, <code>lt</code>, <code>mi</code>, <code>ms</code>, <code>nl</code>, <code>no</code>, <code>pl</code>, <code>sk</code>, <code>sl</code>, <code>sq</code>, <code>sv</code>, <code>sw</code>, <code>tl</code>, <code>tr</code>, <code>uz</code>, <code>la</code>, <code>ru</code>, <code>be</code>, <code>uk</code>, <code>th</code>, <code>el</code>, <code>az</code>, <code>ku</code>, <code>lv</code>, <code>mt</code>, <code>pi</code>, <code>ro</code>, <code>vi</code>, <code>fi</code>, <code>eu</code>, <code>gl</code>, <code>lb</code>, <code>rm</code>, <code>ca</code>, <code>qu</code>, <code>te</code>, <code>sr</code>, <code>bg</code>, <code>mn</code>, <code>ab</code>, <code>ady</code>, <code>kbd</code>, <code>av</code>, <code>dar</code>, <code>inh</code>, <code>ce</code>, <code>lki</code>, <code>lez</code>, <code>tab</code>, <code>kk</code>, <code>ky</code>, <code>tg</code>, <code>mk</code>, <code>tt</code>, <code>cv</code>, <code>ba</code>, <code>mhr</code>, <code>mo</code>, <code>udm</code>, <code>kv</code>, <code>os</code>, <code>bua</code>, <code>xal</code>, <code>tyv</code>, <code>sah</code>, <code>kaa</code>, <code>ar</code>, <code>fa</code>, <code>ug</code>, <code>ur</code>, <code>ps</code>, <code>ku</code>, <code>sd</code>, <code>bal</code>, <code>hi</code>, <code>mr</code>, <code>ne</code>, <code>bh</code>, <code>mai</code>, <code>ang</code>, <code>bho</code>, <code>mah</code>, <code>sck</code>, <code>new</code>, <code>gom</code>, <code>sa</code>, <code>bgc</code>, <code>ta</code></td>
