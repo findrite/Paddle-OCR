@@ -44,9 +44,18 @@ paddle2onnx --model_dir "$MODEL_DIR" \
 echo "▶ writing labels.txt from inference.yml"
 python "$HERE/extract_labels.py" "$INFER_YML" "$OUT/labels.txt"
 
+echo "▶ writing layout_preprocess.json (kind=paddlex_det) from inference.yml"
+python "$HERE/extract_preprocess.py" "$INFER_YML" "$OUT/layout_preprocess.json"
+
 echo "✓ done"
 echo "  - $OUT/layout.onnx"
 echo "  - $OUT/labels.txt  ($(wc -l < "$OUT/labels.txt" 2>/dev/null || echo '?') classes)"
+echo "  - $OUT/layout_preprocess.json"
 echo
-echo "Phase 6: once the rs_pdf_core PP-DocLayout adapter lands, copy into:"
-echo "  cp output/layout.onnx output/labels.txt ../../rs-pdf-core/runtime-paddle-latest-mobile/layout/"
+echo "Copy all three into the runtime profile:"
+echo "  cp output/layout.onnx output/labels.txt output/layout_preprocess.json \\"
+echo "     ../../rs-pdf-core/runtime-paddle-latest-mobile/layout/"
+echo
+echo "The rs_pdf_core PaddleX adapter is EXPERIMENTAL — verify box accuracy and,"
+echo "if off, tune layout_preprocess.json (input_size / mean / std). RT-DETR exports"
+echo "that need scale_factor/im_shape inputs are rejected with a clear error."
