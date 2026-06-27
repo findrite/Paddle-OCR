@@ -1,0 +1,5 @@
+# Only needed for the optional smoke test (onnxruntime). The fetch script
+# itself needs nothing but curl + tar — the models are PRE-CONVERTED ONNX.
+onnxruntime>=1.16
+numpy>=1.24
+Pillow>=10.0

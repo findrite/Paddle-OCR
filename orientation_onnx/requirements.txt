@@ -1,0 +1,9 @@
+# PP-LCNet orientation models ship as Paddle inference format, so conversion
+# needs PaddlePaddle + paddle2onnx.
+paddlepaddle>=2.5
+paddle2onnx>=1.0
+onnx>=1.14
+# optional smoke test:
+onnxruntime>=1.16
+numpy>=1.24
+Pillow>=10.0
