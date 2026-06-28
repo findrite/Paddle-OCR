@@ -46,13 +46,27 @@ fetch_onnx () {  # $1=model name (tar stem)  $2=dest .onnx
 fetch_onnx "PP-OCRv5_mobile_det_onnx_infer" "$OUT/ocr_detect.onnx"
 fetch_onnx "PP-OCRv5_mobile_rec_onnx_infer" "$OUT/ocr_rec.onnx"
 
-# Recognition dictionary: PP-OCRv5 English keys (ships in this repo).
-DICT_SRC="$HERE/../ppocr/utils/dict/ppocrv5_en_dict.txt"
+# Recognition dictionary: PP-OCRv5_mobile_rec is the MULTILINGUAL model
+# (vocab ~18385), so it needs the full ppocrv5_dict.txt (18383 chars), NOT the
+# 436-char English dict. Using the en dict triggers a vocab-mismatch error.
+DICT_SRC="$HERE/../ppocr/utils/dict/ppocrv5_dict.txt"
 if [ -f "$DICT_SRC" ]; then
-  cp "$DICT_SRC" "$OUT/ppocr_keys_v5_en.txt"
-  echo "  -> $OUT/ppocr_keys_v5_en.txt ($(wc -l < "$OUT/ppocr_keys_v5_en.txt") chars)"
+  cp "$DICT_SRC" "$OUT/ppocr_keys_v5.txt"
+  echo "  -> $OUT/ppocr_keys_v5.txt ($(wc -l < "$OUT/ppocr_keys_v5.txt") chars, multilingual)"
 else
-  echo "⚠ dict not found at $DICT_SRC — copy ppocrv5_en_dict.txt manually"
+  echo "⚠ dict not found at $DICT_SRC — copy ppocrv5_dict.txt manually"
 fi
 
-echo "✓ done. See header for where to copy each file."
+# The OcrDetector also requires a one-class labels.txt ("text") next to the
+# detector, and a shared font dir — staged below.
+printf 'text\n' > "$OUT/ocr_detect_labels.txt"
+
+echo "✓ done."
+echo
+echo "Copy into rs-pdf-core/runtime-paddle-latest-mobile/ :"
+echo "  cp output/ocr_detect.onnx        \$P/ocr_detect/ocr_detect.onnx"
+echo "  cp output/ocr_detect_labels.txt  \$P/ocr_detect/labels.txt"
+echo "  cp output/ocr_rec.onnx           \$P/ocr_rec/en/ocr_rec.onnx"
+echo "  cp output/ppocr_keys_v5.txt      \$P/ocr_rec/en/ppocr_keys_v5.txt"
+echo "  cp rec_preprocess.json           \$P/ocr_rec/en/preprocess.json"
+echo "  cp -R ../../rs-pdf-core/runtime/fonts \$P/fonts   # shared font (NotoSans)"
