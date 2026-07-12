@@ -1,4 +1,4 @@
-# OCR ONNX v6 — PP-OCRv6_small (det + rec)
+# OCR ONNX v6 — PP-OCRv6 family (det + rec, tier-parameterised)
 
 Versioned export folder for the rs_pdf_core **`ppocrv6-small`** model
 profile. **Does not replace** `ocr_onnx_v5/` (PP-OCRv5 mobile,
@@ -17,8 +17,17 @@ profile. **Does not replace** `ocr_onnx_v5/` (PP-OCRv5 mobile,
 
 ```bash
 cd Paddle-OCR/ocr_onnx_v6
-bash fetch_onnx.sh
+bash fetch_onnx.sh            # small (default)
+bash fetch_onnx.sh medium     # medium tier
+bash fetch_onnx.sh tiny      # tiny tier
 ```
+
+All tiers share the same DB det + CTC rec architecture, 48x320 rec training
+geometry, and the unified 50-language dict — outputs land in
+`output/<tier>/`. `rec_preprocess.json` sets `max_width: 1200`: the rec ONNX
+accepts dynamic width, and squashing long lines to the 320 training width
+garbles them (e.g. "FK2ASA" for a 41-char line); 1200 keeps aspect for
+lines up to ~25:1.
 
 Needs only `curl` + `tar` + network — the `*_onnx_infer` tarballs already
 contain converted `.onnx`. Produces:
