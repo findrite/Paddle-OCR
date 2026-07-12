@@ -1,0 +1,7 @@
+{
+  "target_height": 48,
+  "max_width": 320,
+  "mean": [0.5, 0.5, 0.5],
+  "std": [0.5, 0.5, 0.5],
+  "model_tag": "PP-OCRv6_small_rec"
+}
